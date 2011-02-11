@@ -17,13 +17,12 @@ Django-приложение, обеспечивающее работу с сер
 
 После этого, необходимо добавить приложение в ``INSTALLED_APPS`` и добавить бэкэнд авторизации -
 ``loginza.authentication.LoginzaBackend`` в ``AUTHENTICATION_BACKENDS``. В общем случае, бэкэнды
-авторизации после добавления нового, будут выглядеть так:
+авторизации после добавления нового, будут выглядеть так::
 
-::
-  AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',
-    'loginza.authentication.LoginzaBackend',
-  )
+ AUTHENTICATION_BACKENDS = (
+     'django.contrib.auth.backends.ModelBackend',
+     'loginza.authentication.LoginzaBackend',
+ )
 
 В этом случае, можно будет использовать как стандартную форму авторизации по логину и паролю
 (например, для доступа в админскую панель), так и loginza-авторизацию.
@@ -42,9 +41,9 @@ Django-приложение, обеспечивающее работу с сер
 Шаблонные теги
 ==============
 
-Для того, чтобы отобразить виджет авторизации в шаблоне, сначала необходимо загрузить тэги:
+Для того, чтобы отобразить виджет авторизации в шаблоне, сначала необходимо загрузить тэги::
 
-  {% load loginza_widget %}
+ {% load loginza_widget %}
 
 После этого, становятся доступны следущие теги:
 
@@ -67,15 +66,14 @@ Django-приложение, обеспечивающее работу с сер
 
 Более подробно об этих параметрах можно прочитать в `Руководстве по Loginza.API`__.
 
-В общем случае шаблон, отвечающий за авторизацию будет выглядеть следующим образом:
+В общем случае шаблон, отвечающий за авторизацию будет выглядеть следующим образом::
 
-::
-  {% load loginza_widget %}
-  {% if user.is_authenticated %}
-    Добро пожаловать, {{ user }}
-  {% else %}
-    {% loginza_button "Войти через loginza" %}
-  {% endif %}
+ {% load loginza_widget %}
+ {% if user.is_authenticated %}
+   Добро пожаловать, {{ user }}
+ {% else %}
+   {% loginza_button "Войти через loginza" %}
+ {% endif %}
 
 Сигналы
 =======
@@ -89,74 +87,71 @@ Django-приложение, обеспечивающее работу с сер
 Более подробно о сигналах и их параметрах можно прочитать в их документации к сигналам в `signals.py`
 приложения.
 
-Примеры `views.py` вспомогательного приложения `users`, использующего сигналы приложения `loginza`:
+Примеры `views.py` вспомогательного приложения `users`, использующего сигналы приложения `loginza`::
 
-::
-  # -*- coding:utf-8 -*-
-  from django import http
-  from django.contrib import messages, auth
-  from django.shortcuts import redirect, render_to_response
-  from django.core.urlresolvers import reverse
-  from django.template.context import RequestContext
+ # -*- coding:utf-8 -*-
+ from django import http
+ from django.contrib import messages, auth
+ from django.shortcuts import redirect, render_to_response
+ from django.core.urlresolvers import reverse
+ from django.template.context import RequestContext
 
-  from users import forms
-  from loginza import signals, models
-  from loginza.templatetags.loginza_widget import _return_path, _skip_overwrite_return_path
+ from users import forms
+ from loginza import signals, models
+ from loginza.templatetags.loginza_widget import _return_path, _skip_overwrite_return_path
 
-  def loginza_error_handler(sender, error, **kwargs):
-      messages.error(sender, error.message)
+ def loginza_error_handler(sender, error, **kwargs):
+     messages.error(sender, error.message)
 
-  signals.error.connect(loginza_error_handler)
+ signals.error.connect(loginza_error_handler)
 
-  def loginza_auth_handler(sender, user, identity, **kwargs):
+ def loginza_auth_handler(sender, user, identity, **kwargs):
+     try:
+         # it's enough to have single identity verified to treat user as verified
+         models.UserMap.objects.get(user=user, verified=True)
+         auth.login(sender, user)
+     except models.UserMap.DoesNotExist:
+         sender.session['users_complete_reg_id'] = identity.id
+         return redirect(reverse('users.views.complete_registration'))
+
+ signals.authenticated.connect(loginza_auth_handler)
+
+ def complete_registration(request):
+     if request.user.is_authenticated():
+         return http.HttpResponseForbidden(u'Вы попали сюда по ошибке')
       try:
-          # it's enough to have single identity verified to treat user as verified
-          models.UserMap.objects.get(user=user, verified=True)
-          auth.login(sender, user)
-      except models.UserMap.DoesNotExist:
-          sender.session['users_complete_reg_id'] = identity.id
-          return redirect(reverse('users.views.complete_registration'))
-
-  signals.authenticated.connect(loginza_auth_handler)
-
-  def complete_registration(request):
-      if request.user.is_authenticated():
-          return http.HttpResponseForbidden(u'Вы попали сюда по ошибке')
-
-      try:
-          identity_id = request.session.get('users_complete_reg_id', None)
-          user_map = models.UserMap.objects.get(identity__id=identity_id)
-      except models.UserMap.DoesNotExist:
-          return http.HttpResponseForbidden(u'Вы попали сюда по ошибке')
-
+         identity_id = request.session.get('users_complete_reg_id', None)
+         user_map = models.UserMap.objects.get(identity__id=identity_id)
+     except models.UserMap.DoesNotExist:
+         return http.HttpResponseForbidden(u'Вы попали сюда по ошибке')
       # widget should not overwrite original return path with registration complete page
-      _skip_overwrite_return_path(request, True)
-      if request.method == 'POST':
-          form = forms.CompleteReg(user_map.user.id, request.POST)
-          if form.is_valid():
-              user_map.user.username = form.cleaned_data['username']
-              user_map.user.email = form.cleaned_data['email']
-              user_map.user.save()
+     _skip_overwrite_return_path(request, True)
+     if request.method == 'POST':
+         form = forms.CompleteReg(user_map.user.id, request.POST)
+         if form.is_valid():
+             user_map.user.username = form.cleaned_data['username']
+             user_map.user.email = form.cleaned_data['email']
+             user_map.user.save()
 
-              user_map.verified = True
-              user_map.save()
+             user_map.verified = True
+             user_map.save()
 
-              user = auth.authenticate(user_map=user_map)
-              auth.login(request, user)
+             user = auth.authenticate(user_map=user_map)
+             auth.login(request, user)
 
-              messages.info(request, u'Добро пожаловать!')
-              del request.session['users_complete_reg_id']
-              _skip_overwrite_return_path(request, False)
-              return redirect(_return_path(request))
-      else:
-          form = forms.CompleteReg(user_map.user.id, initial={
-              'username': user_map.user.username, 'email': user_map.user.email,
-              })
+             messages.info(request, u'Добро пожаловать!')
+             del request.session['users_complete_reg_id']
+             _skip_overwrite_return_path(request, False)
+             return redirect(_return_path(request))
+     else:
+         form = forms.CompleteReg(user_map.user.id, initial={
+             'username': user_map.user.username, 'email': user_map.user.email,
+             })
 
-      return render_to_response('users/complete_reg.html',
-                                {'form': form},
-                                context_instance=RequestContext(request),
-                                )
+     return render_to_response('users/complete_reg.html',
+                               {'form': form},
+                               context_instance=RequestContext(request),
+                               )
 
 Настройки
 =========
@@ -169,13 +164,12 @@ Django-приложение, обеспечивающее работу с сер
   например 'facebook,twitter,google'
 - ``LOGINZA_PROVIDER_TITLES`` - заголовки провайдеров, используемые для изображений виджета
   ``loginza_icons``. Формат - словарь с ключами именами провайдерв, и значениями - заголовками, например
-   {'google': u'Корпорация добра', 'twitter': u'Щебетальня', 'vkontakte': u'Вконтактик'}
+  {'google': u'Корпорация добра', 'twitter': u'Щебетальня', 'vkontakte': u'Вконтактик'}
 - ``LOGINZA_DEFAULT_EMAIL`` - адрес электронной почты, используемый для новых пользователей, в случае,
   если Loginza не предоставила, таковой. По умолчанию - 'user@loginza'
 
 :Автор приложения:
   Владимир Гарвардт
-
 :Благодарности:
   Ивану Сагалаеву, Юрию Юревичу
 
