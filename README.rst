@@ -66,7 +66,7 @@ Django-приложение, обеспечивающее работу с сер
 
 Более подробно об этих параметрах можно прочитать в `Руководстве по Loginza.API`__.
 
-В общем случае шаблон, отвечающий за авторизацию будет выглядеть следующим образом::
+В общем случае шаблон, отвечающий за авторизацию, будет выглядеть следующим образом::
 
  {% load loginza_widget %}
  {% if user.is_authenticated %}
@@ -87,7 +87,7 @@ Django-приложение, обеспечивающее работу с сер
 Более подробно о сигналах и их параметрах можно прочитать в их документации к сигналам в `signals.py`
 приложения.
 
-Примеры `views.py` вспомогательного приложения `users`, использующего сигналы приложения `loginza`::
+Примеры ``views.py`` вспомогательного приложения ``users``, использующего сигналы приложения ``loginza``::
 
  # -*- coding:utf-8 -*-
  from django import http
@@ -124,7 +124,7 @@ Django-приложение, обеспечивающее работу с сер
          user_map = models.UserMap.objects.get(identity__id=identity_id)
      except models.UserMap.DoesNotExist:
          return http.HttpResponseForbidden(u'Вы попали сюда по ошибке')
-      # widget should not overwrite original return path with registration complete page
+     # widget should not overwrite original return path with registration complete page
      _skip_overwrite_return_path(request, True)
      if request.method == 'POST':
          form = forms.CompleteReg(user_map.user.id, request.POST)
@@ -168,10 +168,8 @@ Django-приложение, обеспечивающее работу с сер
 - ``LOGINZA_DEFAULT_EMAIL`` - адрес электронной почты, используемый для новых пользователей, в случае,
   если Loginza не предоставила, таковой. По умолчанию - 'user@loginza'
 
-:Автор приложения:
-  Владимир Гарвардт
-:Благодарности:
-  Ивану Сагалаеву, Юрию Юревичу
+:Автор приложения: Владимир Гарвардт
+:Благодарности: Ивану Сагалаеву, Юрию Юревичу
 
 __ https://github.com/vgarvardt/django-loginza
 __ http://loginza.ru/signin-integration
