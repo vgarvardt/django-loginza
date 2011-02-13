@@ -95,7 +95,7 @@ Django-приложение, обеспечивающее работу с сер
 Более подробно о сигналах и их параметрах можно прочитать в их документации к сигналам в ``signals.py``
 приложения.
 
-Примеры ``views.py`` вспомогательного приложения ``users``, использующего сигналы приложения ``loginza``::
+Пример ``views.py`` вспомогательного приложения ``users``, использующего сигналы приложения ``loginza``::
 
  # -*- coding:utf-8 -*-
  from django import http
@@ -106,7 +106,7 @@ Django-приложение, обеспечивающее работу с сер
 
  from users import forms
  from loginza import signals, models
- from loginza.templatetags.loginza_widget import _return_path, _skip_overwrite_return_path
+ from loginza.templatetags.loginza_widget import _return_path
 
  def loginza_error_handler(sender, error, **kwargs):
      messages.error(sender, error.message)
@@ -132,8 +132,6 @@ Django-приложение, обеспечивающее работу с сер
          user_map = models.UserMap.objects.get(identity__id=identity_id)
      except models.UserMap.DoesNotExist:
          return http.HttpResponseForbidden(u'Вы попали сюда по ошибке')
-     # widget should not overwrite original return path with registration complete page
-     _skip_overwrite_return_path(request, True)
      if request.method == 'POST':
          form = forms.CompleteReg(user_map.user.id, request.POST)
          if form.is_valid():
@@ -149,7 +147,6 @@ Django-приложение, обеспечивающее работу с сер
 
              messages.info(request, u'Добро пожаловать!')
              del request.session['users_complete_reg_id']
-             _skip_overwrite_return_path(request, False)
              return redirect(_return_path(request))
      else:
          form = forms.CompleteReg(user_map.user.id, initial={
@@ -160,6 +157,12 @@ Django-приложение, обеспечивающее работу с сер
                                {'form': form},
                                context_instance=RequestContext(request),
                                )
+
+Для того, чтобы пример выше работал корректно, необходимо так же в ``settings.py`` проекта добавить
+следующие настройки (подробнее читайте в разделе *Настройки*)::
+
+ 
+ LOGINZA_AMNESIA_PATHS = ('/users/complete_registration/',)
 
 Настройки
 =========
@@ -175,6 +178,10 @@ Django-приложение, обеспечивающее работу с сер
   {'google': u'Корпорация добра', 'twitter': u'Щебетальня', 'vkontakte': u'Вконтактик'}
 - ``LOGINZA_DEFAULT_EMAIL`` - адрес электронной почты, используемый для новых пользователей, в случае,
   если Loginza не предоставила, таковой. По умолчанию - 'user@loginza'
+- ``LOGINZA_AMNESIA_PATHS`` - список или кортеж путей, которые не будут запоминаться для взврата.
+  Например, как показано в примере выше, страница завершения регистрации не запоминается, для того,
+  чтобы после успешной авторизации пользователь был возвращен на страницу, с которой авторзация началась,
+  а не на пустую страницу завершения регистрации.
 
 :Автор: Владимир Гарвардт
 :Благодарности: Ивану Сагалаеву, Юрию Юревичу

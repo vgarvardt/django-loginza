@@ -30,8 +30,16 @@ class UserMapManager(models.Manager):
                 loginza_data = json.loads(identity.data)
                 loginza_email = loginza_data.get('email', '')
                 email = loginza_email if '@' in loginza_email else settings.DEFAULT_EMAIL
+
+                # check duplicate user name
+                try:
+                    existing_user = User.objects.get(username=loginza_data['nickname'])
+                    username = '%s%d' % (loginza_data['nickname'], existing_user.id)
+                except User.DoesNotExist:
+                    username = loginza_data['nickname']
+
                 user = User.objects.create_user(
-                        loginza_data['nickname'],
+                        username,
                         email,
                         User.objects.make_random_password()
                         )

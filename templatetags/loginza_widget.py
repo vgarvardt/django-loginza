@@ -36,13 +36,9 @@ for key, value in allowed_providers_def.items():
     allowed_providers[key] = settings.PROVIDER_TITLES.get(key, value)
 
 def _return_path(request, path=None):
-    if path is not None and not _skip_overwrite_return_path(request):
+    if path is not None and path not in settings.AMNESIA_PATHS:
         request.session['loginza_return_path'] = path
     return request.session.get('loginza_return_path', '/')
-
-def _skip_overwrite_return_path(request, skip=None):
-    if skip is not None: request.session['loginza_skip_overwrite_return_path'] = skip
-    return request.session.get('loginza_skip_overwrite_return_path', False)
 
 def _absolute_url(url):
     return 'http://%s%s' % (Site.objects.get_current().domain, url)
