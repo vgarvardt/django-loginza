@@ -161,7 +161,8 @@ Django-приложение, обеспечивающее работу с сер
 Для того, чтобы пример выше работал корректно, необходимо так же в ``settings.py`` проекта добавить
 следующие настройки (подробнее читайте в разделе *Настройки*)::
 
- 
+ # can't use reverse url resolver here (raises ImportError),
+ # so we should carefully control paths
  LOGINZA_AMNESIA_PATHS = ('/users/complete_registration/',)
 
 Настройки
