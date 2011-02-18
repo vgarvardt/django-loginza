@@ -12,23 +12,23 @@ from loginza.conf import settings
 register = Library()
 
 allowed_providers_def = {
-    'google': 'Google Accounts',
-    'yandex': 'Yandex',
-    'mailruapi': 'Mail.ru API',
-    'mailru': 'Mail.ru',
-    'vkontakte': 'Вконтакте',
-    'facebook': 'Facebook',
-    'twitter': 'Twitter',
-    'loginza': 'Loginza',
-    'myopenid': 'MyOpenID',
-    'webmoney': 'WebMoney',
-    'rambler': 'Rambler',
-    'flickr': 'Flickr',
-    'lastfm': 'Last.fm',
-    'verisign': 'Verisign',
-    'aol': 'AOL',
-    'steam': 'Steam',
-    'openid': 'OpenID',
+    'google': u'Google Accounts',
+    'yandex': u'Yandex',
+    'mailruapi': u'Mail.ru API',
+    'mailru': u'Mail.ru',
+    'vkontakte': u'Вконтакте',
+    'facebook': u'Facebook',
+    'twitter': u'Twitter',
+    'loginza': u'Loginza',
+    'myopenid': u'MyOpenID',
+    'webmoney': u'WebMoney',
+    'rambler': u'Rambler',
+    'flickr': u'Flickr',
+    'lastfm': u'Last.fm',
+    'verisign': u'Verisign',
+    'aol': u'AOL',
+    'steam': u'Steam',
+    'openid': u'OpenID',
 }
 
 allowed_providers = {}
@@ -48,11 +48,14 @@ def return_url():
 
 def _providers_set(kwargs):
     providers_set = []
-    if 'providers_set' in kwargs:
-        providers = kwargs['providers_set'].split(',')
+
+    providers_list = kwargs['providers_set'] if 'providers_set' in kwargs else settings.DEFAULT_PROVIDERS_SET
+    if providers_list is not None:
+        providers = providers_list.split(',')
         for provider in providers:
             if provider in allowed_providers:
                 providers_set.append(provider)
+
     return providers_set
 
 def providers(kwargs):
@@ -62,8 +65,9 @@ def providers(kwargs):
     if len(providers_set) > 0:
         params.append('providers_set=' + ','.join(providers_set))
 
-    if 'provider' in kwargs and kwargs['provider'] in allowed_providers:
-        params.append('provider=' + kwargs['provider'])
+    provider = kwargs['provider'] if 'provider' in kwargs else settings.DEFAULT_PROVIDER
+    if provider in allowed_providers:
+        params.append('provider=' + provider)
 
     return ('&'.join(params) + '&') if len(params) > 0 else ''
 
@@ -93,9 +97,8 @@ def icons_template(kwargs, caption):
         providers_set = _providers_set(kwargs)
         # if providers set is not set explicitly - all providers are used
         if len(providers_set) < 1:
-            providers_set = settings.ICONS_PROVIDERS.split(',')
-            if len(providers_set) == 1 and len(providers_set[0]) < 1:
-                providers_set = allowed_providers.keys()
+            setting_icons = settings.ICONS_PROVIDERS
+            providers_set = setting_icons.split(',') if setting_icons is not None else allowed_providers.keys()
 
         imgs = []
         for provider in providers_set:
@@ -108,7 +111,7 @@ def icons_template(kwargs, caption):
 
     return """<script src="http://loginza.ru/js/widget.js" type="text/javascript"></script>
 %(caption)s
-<a href="https://loginza.ru/api/widget?%(providers)slang=%(lang)stoken_url=%(return-url)s" class="loginza">
+<a href="https://loginza.ru/api/widget?%(providers)slang=%(lang)s&token_url=%(return-url)s" class="loginza">
     %(icons)s
 </a>""" % {
         'return-url': return_url(),
