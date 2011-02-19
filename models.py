@@ -46,8 +46,7 @@ class UserMapManager(models.Manager):
 
                 user = User.objects.create_user(
                         username,
-                        email,
-                        User.objects.make_random_password()
+                        email
                         )
             user_map = UserMap.objects.create(identity=identity, user=user)
             signals.created.send(request, user_map=user_map)
