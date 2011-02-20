@@ -9,6 +9,9 @@ class IdentityManager(models.Manager):
     def from_loginza_data(self, loginza_data):
         try:
             identity = self.get(identity=loginza_data['identity'])
+            # update data as some apps can use it, e.g. avatars
+            identity.data = json.dumps(loginza_data)
+            identity.save()
         except self.model.DoesNotExist:
             identity = self.create(
                     identity=loginza_data['identity'],
