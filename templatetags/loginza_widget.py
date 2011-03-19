@@ -102,6 +102,9 @@ def icons_template(kwargs, caption):
 
         imgs = []
         for provider in providers_set:
+            # TODO: remove this workaround after Loginza will fix issue with disappeared icons
+            # see http://feedback.loginza.ru/problem/details/id/2648
+            if provider in ('verisign', 'aol'): continue
             imgs.append(
                     '<img src="http://loginza.ru/img/providers/%(provider)s.png" alt="%(title)s" title="%(title)s">' % {
                         'provider': provider,
