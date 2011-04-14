@@ -27,3 +27,9 @@ DEFAULT_EMAIL = getattr(settings, 'LOGINZA_DEFAULT_EMAIL', 'user@loginza')
 
 # List or tuple of paths, that will not be stored for return.
 AMNESIA_PATHS = getattr(settings, 'LOGINZA_AMNESIA_PATHS', ())
+
+# Button widget image url.
+BUTTON_IMG_URL = getattr(settings, 'LOGINZA_BUTTON_IMG_URL', 'http://loginza.ru/img/sign_in_button_gray.gif')
+
+# Icons widget images urls.
+ICONS_IMG_URLS = getattr(settings, 'LOGINZA_ICONS_IMG_URLS', {})

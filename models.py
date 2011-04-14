@@ -14,11 +14,12 @@ class IdentityManager(models.Manager):
             identity.save()
         except self.model.DoesNotExist:
             identity = self.create(
-                    identity=loginza_data['identity'],
-                    provider=loginza_data['provider'],
-                    data=json.dumps(loginza_data)
-                    )
+                identity=loginza_data['identity'],
+                provider=loginza_data['provider'],
+                data=json.dumps(loginza_data)
+            )
         return identity
+
 
 class UserMapManager(models.Manager):
     def for_identity(self, identity, request):
@@ -49,12 +50,13 @@ class UserMapManager(models.Manager):
                         break
 
                 user = User.objects.create_user(
-                        username,
-                        email
-                        )
+                    username,
+                    email
+                )
             user_map = UserMap.objects.create(identity=identity, user=user)
             signals.created.send(request, user_map=user_map)
         return user_map
+
 
 class Identity(models.Model):
     identity = models.CharField(max_length=255, unique=True)

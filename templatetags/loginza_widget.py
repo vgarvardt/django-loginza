@@ -28,7 +28,7 @@ allowed_providers_def = {
     'verisign': u'Verisign',
     'aol': u'AOL',
     'steam': u'Steam',
-    'openid': u'OpenID',
+    'openid': u'OpenID'
 }
 
 allowed_providers = {}
@@ -40,11 +40,14 @@ def _return_path(request, path=None):
         request.session['loginza_return_path'] = path
     return request.session.get('loginza_return_path', '/')
 
+
 def _absolute_url(url):
     return 'http://%s%s' % (Site.objects.get_current().domain, url)
 
+
 def return_url():
     return urllib.quote(_absolute_url(reverse('loginza.views.return_callback')), '')
+
 
 def _providers_set(kwargs):
     providers_set = []
@@ -57,6 +60,7 @@ def _providers_set(kwargs):
                 providers_set.append(provider)
 
     return providers_set
+
 
 def providers(kwargs):
     params = []
@@ -71,6 +75,7 @@ def providers(kwargs):
 
     return ('&'.join(params) + '&') if len(params) > 0 else ''
 
+
 def iframe_template(kwargs, caption=''):
     return """<script src="http://loginza.ru/js/widget.js" type="text/javascript"></script>
 <iframe src="http://loginza.ru/api/widget?overlay=loginza&%(providers)slang=%(lang)s&token_url=%(return-url)s"
@@ -78,19 +83,22 @@ style="width:359px;height:300px;" scrolling="no" frameborder="no"></iframe>""" %
         'return-url': return_url(),
         'lang': kwargs['lang'],
         'providers': providers(kwargs),
-        'caption': caption,
+        'caption': caption
     }
+
 
 def button_template(kwargs, caption):
     return """<script src="http://loginza.ru/js/widget.js" type="text/javascript"></script>
 <a href="http://loginza.ru/api/widget?%(providers)slang=%(lang)s&token_url=%(return-url)s" class="loginza">
-    <img src="http://loginza.ru/img/sign_in_button_gray.gif" alt="%(caption)s" title="%(caption)s"/>
+    <img src="%(button-img)s" alt="%(caption)s" title="%(caption)s"/>
 </a>""" % {
+        'button-img': settings.BUTTON_IMG_URL,
         'return-url': return_url(),
         'caption': caption,
         'lang': kwargs['lang'],
-        'providers': providers(kwargs),
+        'providers': providers(kwargs)
     }
+
 
 def icons_template(kwargs, caption):
     def icons():
@@ -104,12 +112,17 @@ def icons_template(kwargs, caption):
         for provider in providers_set:
             # TODO: remove this workaround after Loginza will fix issue with disappeared icons
             # see http://feedback.loginza.ru/problem/details/id/2648
-            if provider in ('verisign', 'aol'): continue
-            imgs.append(
-                    '<img src="http://loginza.ru/img/providers/%(provider)s.png" alt="%(title)s" title="%(title)s">' % {
-                        'provider': provider,
-                        'title': allowed_providers[provider],
-                        })
+
+            # commenting this workaroud as now we have way to override missed icons urls
+            # if provider in ('verisign', 'aol'): continue
+
+            if provider in settings.ICONS_IMG_URLS: img_url = settings.ICONS_IMG_URLS[provider]
+            else: img_url = 'http://loginza.ru/img/providers/%s.png' % provider
+
+            imgs.append('<img src="%(img_url)s" alt="%(title)s" title="%(title)s">' % {
+                'img_url': img_url,
+                'title': allowed_providers[provider]
+            })
         return '\r\n'.join(imgs)
 
     return """<script src="http://loginza.ru/js/widget.js" type="text/javascript"></script>
@@ -121,8 +134,9 @@ def icons_template(kwargs, caption):
         'caption': caption,
         'lang': kwargs['lang'],
         'providers': providers(kwargs),
-        'icons': icons(),
+        'icons': icons()
     }
+
 
 class LoginzaWidgetNode(Node):
     def __init__(self, html_template, caption, kwargs, asvar):
@@ -147,6 +161,7 @@ class LoginzaWidgetNode(Node):
             html = ''
 
         return html
+
 
 def _loginza_widget(parser, token, html_template):
     def unquote(s):
@@ -182,13 +197,16 @@ def _loginza_widget(parser, token, html_template):
 
     return LoginzaWidgetNode(html_template, caption, kwargs, asvar)
 
+
 @register.tag
 def loginza_iframe(parser, token):
     return _loginza_widget(parser, token, iframe_template)
 
+
 @register.tag
 def loginza_button(parser, token):
     return _loginza_widget(parser, token, button_template)
+
 
 @register.tag
 def loginza_icons(parser, token):
