@@ -138,6 +138,18 @@ def icons_template(kwargs, caption):
     }
 
 
+def string_template(kwargs, caption):
+    return """<script src="http://loginza.ru/js/widget.js" type="text/javascript"></script>
+<a href="http://loginza.ru/api/widget?%(providers)slang=%(lang)s&token_url=%(return-url)s" class="loginza">
+    %(caption)s"
+</a>""" % {
+        'return-url': return_url(),
+        'caption': caption,
+        'lang': kwargs['lang'],
+        'providers': providers(kwargs)
+    }
+
+
 class LoginzaWidgetNode(Node):
     def __init__(self, html_template, caption, kwargs, asvar):
         self.html_template = html_template
@@ -211,3 +223,8 @@ def loginza_button(parser, token):
 @register.tag
 def loginza_icons(parser, token):
     return _loginza_widget(parser, token, icons_template)
+
+
+@register.tag
+def loginza_string(parser, token):
+    return _loginza_widget(parser, token, string_template)
