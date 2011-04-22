@@ -4,7 +4,6 @@ from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.utils.decorators import available_attrs
 from django.utils.functional import wraps
 from django.utils.http import urlquote
-from django.contrib import messages
 from django.contrib.sites.models import Site
 
 from loginza import signals
