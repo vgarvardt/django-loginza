@@ -141,7 +141,7 @@ def icons_template(kwargs, caption):
 def string_template(kwargs, caption):
     return """<script src="http://loginza.ru/js/widget.js" type="text/javascript"></script>
 <a href="http://loginza.ru/api/widget?%(providers)slang=%(lang)s&token_url=%(return-url)s" class="loginza">
-    %(caption)s"
+    %(caption)s
 </a>""" % {
         'return-url': return_url(),
         'caption': caption,
