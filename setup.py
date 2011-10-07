@@ -12,4 +12,5 @@ setup(
         'test_project', 'test_project.*', 'fabfile']),
     include_package_data = True,
     zip_safe = False,
+    requires= [ 'Django' ],
 )
