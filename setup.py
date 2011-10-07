@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 
 setup(
-    name = 'django-loginza',
+    name = 'loginza',
     version = '0.1',
     author = 'Vladimir Garvardt',
     author_email = 'vgarvardt@gmail.com',
