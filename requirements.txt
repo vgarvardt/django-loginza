@@ -1,0 +1,4 @@
+Django
+pysqlite
+
+-e git+git://github.com/saippuakauppias/django-loginza.git#egg=django-loginza

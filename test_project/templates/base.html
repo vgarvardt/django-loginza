@@ -1,0 +1,37 @@
+{% load loginza_widget %}
+<html>
+<head>
+	<title>Loginza Test</title>
+</head>
+
+<body style="font-size:20px; text-align:center;">
+	{% block body %}
+		{% if user.is_authenticated %} 
+			Добро пожаловать, <strong>{{ user }}</strong>!<br><br> 
+			<a href="/users/logout/?next=%2F">Выйти?</a>
+		{% else %}
+		<div>
+			<strong>loginza_iframe:</strong><br>
+			{% loginza_iframe %} 
+		</div>
+
+		<div>
+			<strong>loginza_button:</strong><br>
+			{% loginza_button "Войти, используя соцсети" %}
+		</div>
+
+			<br><br>
+		<div>
+			<strong>loginza_icons:</strong><br>
+			{% loginza_icons "Войти, используя соцсети" %}
+		</div>
+		
+			<br><br>
+		<div>
+			<strong>loginza_string:</strong><br>
+			{% loginza_string "Войти, используя соцсети" %}
+		</div>
+		{% endif %} 
+	{% endblock %}
+</body>
+</html>

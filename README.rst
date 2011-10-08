@@ -7,13 +7,22 @@ Django-приложение, обеспечивающее работу с сер
 Установка
 =========
 
-В настоящее время приложение доступно только в виде исходного кода без установки в систему.
+Установка производится с помощью ``pip``::
+
+ $ pip install -e git+git://github.com/vgarvardt/django-loginza.git@0.2#egg=django-loginza
+
+Или добавлением следующей строчки в ``project/requirements.txt``::
+
+ -e git+git://github.com/vgarvardt/django-loginza.git@0.2#egg=django-loginza
+
+А затем установкой через ``pip``::
+
+ $ pip install -r project/requirements.txt
+
 Последняя актуальная версия доступна в `репозитории GitHub`__.
 
-Для того, чтобы добавить приложение в свой Django-проект, поместите модуль в корень проекта,
-причем название пакета (директории) должно быть *loginza*, а не *django-loginza*. Для корректной
-работы приложения необходимо, чтобы так же был установлено приложения ``django.contrib.auth``,
-``django.contrib.sessions`` и ``django.contrib.sites``.
+Для корректной работы приложения необходимо, чтобы так же был установлено приложения 
+``django.contrib.auth``, ``django.contrib.sessions`` и ``django.contrib.sites``.
 
 После этого, необходимо добавить приложение в ``INSTALLED_APPS`` и добавить бэкэнд авторизации -
 ``loginza.authentication.LoginzaBackend`` в ``AUTHENTICATION_BACKENDS``. В общем случае, бэкэнды
@@ -27,6 +36,9 @@ Django-приложение, обеспечивающее работу с сер
 В этом случае, можно будет использовать как стандартную форму авторизации по логину и паролю
 (например, для доступа в админскую панель), так и loginza-авторизацию.
 
+Также, следует добавить в ``TEMPLATE_CONTEXT_PROCESSORS`` строчку 
+``django.core.context_processors.request``.
+
 После добавления приложения, необходимо установить необходимый таблицы в БД (выполнить
 ``python manage.py suncdb`` в корне проекта).
 
@@ -35,6 +47,10 @@ Django-приложение, обеспечивающее работу с сер
 
  (r'^loginza/', include('loginza.urls')),
 
+Чтобы при авторизации через loginza вас не перенаправляло не пойми куда (например, example.com) -
+следует в админке, в настройках сайтов указать правильный домен.
+
+
 Использование
 =============
 
@@ -42,7 +58,7 @@ Django-приложение, обеспечивающее работу с сер
 
 - шаблонные теги, для отображения виджета авторизации на странице
 - сигналы, позволяющие другим приложениям взаимодействовать с данным
-- внутрення логика приложения
+- внутренняя логика приложения
 
 Этот документ рассматривает только первые две составляющие.
 
@@ -53,7 +69,7 @@ Django-приложение, обеспечивающее работу с сер
 
  {% load loginza_widget %}
 
-После этого, становятся доступны следущие теги:
+После этого, становятся доступны следующие теги:
 
 - ``loginza_iframe`` - встраиваемый виджета авторизации Loginza (спаренная форма авторизации)
 - ``loginza_button`` - кнопка виджета Loginza
@@ -71,7 +87,7 @@ Django-приложение, обеспечивающее работу с сер
 Так же, для всех виджетов доступны следующие именованные параметры:
 
 - ``lang`` - язык виджета
-- ``providers_set`` - доспуные кнопки и порядок провайдеров
+- ``providers_set`` - доступные кнопки и порядок провайдеров
 - ``provider`` - провайдер авторизации по умолчанию
 
 Например::
@@ -104,105 +120,125 @@ Django-приложение, обеспечивающее работу с сер
 
 Пример ``views.py`` вспомогательного приложения ``users``, использующего сигналы приложения ``loginza``::
 
- # -*- coding:utf-8 -*-
- from django import http
- from django.contrib import messages, auth
- from django.shortcuts import redirect, render_to_response
- from django.core.urlresolvers import reverse
- from django.template.context import RequestContext
+  # -*- coding:utf-8 -*-
+  from django import http
+  from django.contrib import messages, auth
+  from django.shortcuts import redirect, render_to_response
+  from django.core.urlresolvers import reverse
+  from django.template.context import RequestContext
 
- from users import forms
- from loginza import signals, models
- from loginza.templatetags.loginza_widget import _return_path
+  from .forms import CompleteReg
 
- def loginza_error_handler(sender, error, **kwargs):
-     messages.error(sender, error.message)
+  from loginza import signals, models
+  from loginza.templatetags.loginza_widget import _return_path
 
- signals.error.connect(loginza_error_handler)
 
- def loginza_auth_handler(sender, user, identity, **kwargs):
-     try:
-         # it's enough to have single identity verified to treat user as verified
-         models.UserMap.objects.get(user=user, verified=True)
-         auth.login(sender, user)
-     except models.UserMap.DoesNotExist:
-         sender.session['users_complete_reg_id'] = identity.id
-         return redirect(reverse('users.views.complete_registration'))
+  def loginza_error_handler(sender, error, **kwargs):
+      messages.error(sender, error.message)
 
- signals.authenticated.connect(loginza_auth_handler)
+  signals.error.connect(loginza_error_handler)
 
- def loginza_login_required(sender, **kwargs):
-     messages.warning(sender, u'Функция доступна только авторизованным пользователям.')
-
- signals.login_required.connect(loginza_login_required)
-
- def complete_registration(request):
-     if request.user.is_authenticated():
-         return http.HttpResponseForbidden(u'Вы попали сюда по ошибке')
+  def loginza_auth_handler(sender, user, identity, **kwargs):
       try:
-         identity_id = request.session.get('users_complete_reg_id', None)
-         user_map = models.UserMap.objects.get(identity__id=identity_id)
-     except models.UserMap.DoesNotExist:
-         return http.HttpResponseForbidden(u'Вы попали сюда по ошибке')
-     if request.method == 'POST':
-         form = forms.CompleteReg(user_map.user.id, request.POST)
-         if form.is_valid():
-             user_map.user.username = form.cleaned_data['username']
-             user_map.user.email = form.cleaned_data['email']
-             user_map.user.save()
+          # it's enough to have single identity verified to treat user as verified
+          models.UserMap.objects.get(user=user, verified=True)
+          auth.login(sender, user)
+      except models.UserMap.DoesNotExist:
+          sender.session['users_complete_reg_id'] = identity.id
+          return redirect(reverse('users.views.complete_registration'))
 
-             user_map.verified = True
-             user_map.save()
+  signals.authenticated.connect(loginza_auth_handler)
 
-             user = auth.authenticate(user_map=user_map)
-             auth.login(request, user)
+  def loginza_login_required(sender, **kwargs):
+      messages.warning(sender, u'Функция доступна только авторизованным пользователям.')
 
-             messages.info(request, u'Добро пожаловать!')
-             del request.session['users_complete_reg_id']
-             return redirect(_return_path(request))
-     else:
-         form = forms.CompleteReg(user_map.user.id, initial={
-             'username': user_map.user.username, 'email': user_map.user.email,
-             })
+  signals.login_required.connect(loginza_login_required)
 
-     return render_to_response('users/complete_reg.html',
-                               {'form': form},
-                               context_instance=RequestContext(request),
-                               )
+
+  def complete_registration(request):
+      if request.user.is_authenticated():
+          return http.HttpResponseForbidden(u'Вы попали сюда по ошибке')
+      try:
+          identity_id = request.session.get('users_complete_reg_id', None)
+          user_map = models.UserMap.objects.get(identity__id=identity_id)
+      except models.UserMap.DoesNotExist:
+          return http.HttpResponseForbidden(u'Вы попали сюда по ошибке')
+      if request.method == 'POST':
+          form = CompleteReg(user_map.user.id, request.POST)
+          if form.is_valid():
+              user_map.user.username = form.cleaned_data['username']
+              user_map.user.email = form.cleaned_data['email']
+              user_map.user.save()
+
+              user_map.verified = True
+              user_map.save()
+
+              user = auth.authenticate(user_map=user_map)
+              auth.login(request, user)
+
+              messages.info(request, u'Добро пожаловать!')
+              del request.session['users_complete_reg_id']
+              return redirect(_return_path(request))
+      else:
+          form = CompleteReg(user_map.user.id, initial={
+              'username': user_map.user.username, 'email': user_map.user.email,
+              })
+
+      return render_to_response('users/complete_reg.html',
+                                {'form': form},
+                                context_instance=RequestContext(request),
+                                )
 
 Пример ``forms.py`` вспомогательного приложения ``users``::
 
- # -*- coding:utf-8 -*-
- from django import forms
- from django.contrib.auth.models import User
+  # -*- coding:utf-8 -*-
+  from django import forms
+  from django.contrib.auth.models import User
 
- class CompleteReg(forms.Form):
-     username = forms.CharField(label=u'Имя пользователя', max_length=30, required=True)
-     email = forms.EmailField(label=u'Email', required=True)
 
-     def __init__(self, user_id, *args, **kwargs):
-         super(CompleteReg, self).__init__(*args, **kwargs)
-         self.user_id = user_id
+  class CompleteReg(forms.Form):
 
-     def clean_username(self):
-         if self.cleaned_data['username']:
-             try: u = User.objects.exclude(id=self.user_id).get(username=self.cleaned_data['username'])
-             # if username is unique - it's ok
-             except User.DoesNotExist: u = None
+      username = forms.RegexField(label=u'Имя пользователя', max_length=30, min_length=4, 
+                                  required=True, regex=r'^[\w.@+-]+$') 
+      email = forms.EmailField(label=u'Email', required=True) 
 
-             if u is not None:
-                 raise forms.ValidationError(u'Пользователь с таким именем уже зарегистрирован')
-         return self.cleaned_data['username']
 
-     def clean_email(self):
-         if self.cleaned_data['email']:
-             try: u = User.objects.exclude(id=self.user_id).get(email=self.cleaned_data['email'])
-             # if email is unique - it's ok
-             except User.DoesNotExist: u = None
+      def __init__(self, user_id, *args, **kwargs):
+          super(CompleteReg, self).__init__(*args, **kwargs)
+          self.user_id = user_id
 
-             if u is not None:
-                 raise forms.ValidationError(u'Пользователь с этим адресом уже зарегистрирован')
-         return self.cleaned_data['email']
+      def clean_username(self):
+          if self.cleaned_data['username']:
+              try: u = User.objects.exclude(id=self.user_id).get(username=self.cleaned_data['username'])
+              # if username is unique - it's ok
+              except User.DoesNotExist: u = None
+
+              if u is not None:
+                  raise forms.ValidationError(u'Пользователь с таким именем уже зарегистрирован')
+          return self.cleaned_data['username']
+
+      def clean_email(self):
+          if self.cleaned_data['email']:
+              try: u = User.objects.exclude(id=self.user_id).get(email=self.cleaned_data['email'])
+              # if email is unique - it's ok
+              except User.DoesNotExist: u = None
+
+              if u is not None:
+                  raise forms.ValidationError(u'Пользователь с этим адресом уже зарегистрирован')
+          return self.cleaned_data['email']
+
+Пример ``urls.py`` вспомогательного приложения ``users``::
+
+  from django.conf.urls.defaults import *
+
+  from .views import complete_registration
+
+
+  urlpatterns = patterns('',
+      url(r'^complete_registration/$', complete_registration, name='users_complete_registration'),
+      url(r'^logout/$', 'django.contrib.auth.views.logout', name='users_logout'),
+  )
+
 
 Для того, чтобы пример выше работал корректно, необходимо так же в ``settings.py`` проекта добавить
 следующие настройки (подробнее читайте в разделе *Настройки*)::
@@ -210,6 +246,10 @@ Django-приложение, обеспечивающее работу с сер
  # can't use reverse url resolver here (raises ImportError),
  # so we should carefully control paths
  LOGINZA_AMNESIA_PATHS = ('/users/complete_registration/',)
+
+Так же добавить приложение ``users`` в ``INSTALLED_APPS`` и в ``urls.py`` проекта добавить следующее::
+
+ url(r'^users/', include('users.urls')),
 
 Настройки
 =========
@@ -228,13 +268,13 @@ Django-приложение, обеспечивающее работу с сер
   настройка ``LOGINZA_DEFAULT_PROVIDERS_SET`` не задана. Формат - имена провайдеров через запятую,
   например 'facebook,twitter,google'.
 - ``LOGINZA_PROVIDER_TITLES`` - заголовки провайдеров, используемые для изображений виджета
-  ``loginza_icons``. Формат - словарь с ключами именами провайдерв, и значениями - заголовками, например
+  ``loginza_icons``. Формат - словарь с ключами именами провайдеров, и значениями - заголовками, например
   {'google': u'Корпорация добра', 'twitter': u'Щебетальня', 'vkontakte': u'Вконтактик'}
 - ``LOGINZA_DEFAULT_EMAIL`` - адрес электронной почты, используемый для новых пользователей, в случае,
   если Loginza не предоставила, таковой. По умолчанию - 'user@loginza'
-- ``LOGINZA_AMNESIA_PATHS`` - список или кортеж путей, которые не будут запоминаться для взврата.
+- ``LOGINZA_AMNESIA_PATHS`` - список или кортеж путей, которые не будут запоминаться для возврата.
   Например, как показано в примере выше, страница завершения регистрации не запоминается, для того,
-  чтобы после успешной авторизации пользователь был возвращен на страницу, с которой авторзация началась,
+  чтобы после успешной авторизации пользователь был возвращен на страницу, с которой авторизация началась,
   а не на пустую страницу завершения регистрации.
 - ``LOGINZA_BUTTON_IMG_URL`` - ссылка на изображение, используемое для виджета Кнопка. По умолчанию
   изображение загружается с сайта loginza.ru.
@@ -250,12 +290,12 @@ Django-приложение, обеспечивающее работу с сер
 авторизованных пользователей на страницу авторизации срабатывает перенаправление на предыдущую страницу.
 Декоратор может быть полезен сайтам, использующим только Loginza-авторизацию и не имеющим отдельную страницу
 авторизации. Так же, при срабатывании декоратора для не авторизованных пользователей, посылается сигнал
-``loginza.signals.login_required``, присоеденившись к которому можно, например, уведомить пользователя
+``loginza.signals.login_required``, присоединившись к которому можно, например, уведомить пользователя
 о причине возврата на предыдущую страницу (как это показано в примере), и вернуть объект HttpRespose,
 если необходимо выполнить действие отличное, от возвращения пользователя на предыдущую страницу.
 
 :Автор: Владимир Гарвардт
-:Благодарности: Ивану Сагалаеву, Юрию Юревичу
+:Благодарности: Ивану Сагалаеву, Юрию Юревичу, Денису Веселову
 
 __ https://github.com/vgarvardt/django-loginza
 __ http://loginza.ru/signin-integration
