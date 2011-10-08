@@ -1,2 +1,10 @@
 .idea/*
+*.sublime-*
+*.egg-info/
 *.pyc
+*.pyo
+docs/_build/
+dist/
+test_project/public/
+test_project/sqlite.db
+test_project/whoosh_index/
