@@ -16,9 +16,11 @@ class CompleteReg(forms.Form):
 
     def clean_username(self):
         if self.cleaned_data['username']:
-            try: u = User.objects.exclude(id=self.user_id).get(username=self.cleaned_data['username'])
+            try: 
+                u = User.objects.exclude(id=self.user_id).get(username=self.cleaned_data['username'])
             # if username is unique - it's ok
-            except User.DoesNotExist: u = None
+            except User.DoesNotExist: 
+                u = None
 
             if u is not None:
                 raise forms.ValidationError(u'Пользователь с таким именем уже зарегистрирован')
@@ -26,9 +28,11 @@ class CompleteReg(forms.Form):
 
     def clean_email(self):
         if self.cleaned_data['email']:
-            try: u = User.objects.exclude(id=self.user_id).get(email=self.cleaned_data['email'])
+            try: 
+                u = User.objects.exclude(id=self.user_id).get(email=self.cleaned_data['email'])
             # if email is unique - it's ok
-            except User.DoesNotExist: u = None
+            except User.DoesNotExist: 
+                u = None
 
             if u is not None:
                 raise forms.ValidationError(u'Пользователь с этим адресом уже зарегистрирован')
