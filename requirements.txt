@@ -1,3 +1,3 @@
 Django
 
--e git+git://github.com/saippuakauppias/django-loginza.git@0.2#egg=django-loginza
+-e git+git://github.com/vgarvardt/django-loginza.git@0.2#egg=django-loginza
