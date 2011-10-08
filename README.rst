@@ -9,11 +9,11 @@ Django-приложение, обеспечивающее работу с сер
 
 Установка производится с помощью ``pip``::
 
- $ pip install -e git+git://github.com/vgarvardt/django-loginza.git#egg=django-loginza
+ $ pip install -e git+git://github.com/vgarvardt/django-loginza.git@0.3#egg=django-loginza
 
 Или добавлением следующей строчки в ``project/requirements.txt``::
 
- -e git+git://github.com/vgarvardt/django-loginza.git#egg=django-loginza
+ -e git+git://github.com/vgarvardt/django-loginza.git@0.3#egg=django-loginza
 
 А затем установкой через ``pip``::
 
