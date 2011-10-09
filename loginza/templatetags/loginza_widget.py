@@ -27,7 +27,6 @@ allowed_providers_def = {
     'lastfm': u'Last.fm',
     'verisign': u'Verisign',
     'aol': u'AOL',
-    'steam': u'Steam',
     'openid': u'OpenID',
     'livejournal': u'LiveJournal',
 }
