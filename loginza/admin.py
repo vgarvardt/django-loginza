@@ -5,7 +5,8 @@ from loginza import models
 
 site.register(
     models.Identity,
-    list_display=['id', 'provider', 'identity']
+    list_display=['id', 'provider', 'identity'],
+    list_filter=['provider'],
 )
 site.register(
     models.UserMap,
