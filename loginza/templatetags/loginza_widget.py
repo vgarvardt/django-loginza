@@ -6,29 +6,30 @@ from django.core.urlresolvers import reverse
 from django.template import Library, Node, TemplateSyntaxError
 from django.template.defaulttags import kwarg_re
 from django.utils.encoding import smart_str
+from django.utils.translation import ugettext_lazy as _
 
 from loginza.conf import settings
 
 register = Library()
 
 allowed_providers_def = {
-    'google': u'Google Accounts',
-    'yandex': u'Yandex',
-    'mailruapi': u'Mail.ru API',
-    'mailru': u'Mail.ru',
-    'vkontakte': u'Вконтакте',
-    'facebook': u'Facebook',
-    'twitter': u'Twitter',
-    'loginza': u'Loginza',
-    'myopenid': u'MyOpenID',
-    'webmoney': u'WebMoney',
-    'rambler': u'Rambler',
-    'flickr': u'Flickr',
-    'lastfm': u'Last.fm',
-    'verisign': u'Verisign',
-    'aol': u'AOL',
-    'openid': u'OpenID',
-    'livejournal': u'LiveJournal',
+    'google': _(u'Google Accounts'),
+    'yandex': _(u'Yandex'),
+    'mailruapi': _(u'Mail.ru API'),
+    'mailru': _(u'Mail.ru'),
+    'vkontakte': _(u'Vkontakte'),
+    'facebook': _(u'Facebook'),
+    'twitter': _(u'Twitter'),
+    'loginza': _(u'Loginza'),
+    'myopenid': _(u'MyOpenID'),
+    'webmoney': _(u'WebMoney'),
+    'rambler': _(u'Rambler'),
+    'flickr': _(u'Flickr'),
+    'lastfm': _(u'Last.fm'),
+    'verisign': _(u'Verisign'),
+    'aol': _(u'AOL'),
+    'openid': _(u'OpenID'),
+    'livejournal': _(u'LiveJournal'),
 }
 
 allowed_providers = {}

@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import simplejson as json
+from django.utils.translation import ugettext_lazy as _
 
 from loginza import signals
 from loginza.conf import settings
@@ -59,9 +60,9 @@ class UserMapManager(models.Manager):
 
 
 class Identity(models.Model):
-    identity = models.CharField(max_length=255, unique=True)
-    provider = models.CharField(max_length=255)
-    data = models.TextField()
+    identity = models.CharField(_('identity'), max_length=255, unique=True)
+    provider = models.CharField(_('provider'), max_length=255)
+    data = models.TextField(_('data'))
 
     objects = IdentityManager()
 
@@ -70,13 +71,14 @@ class Identity(models.Model):
 
     class Meta:
         ordering = ['id']
-        verbose_name_plural = "identities"
+        verbose_name = _('identity')
+        verbose_name_plural = _('identities')
 
 
 class UserMap(models.Model):
-    identity = models.OneToOneField(Identity)
-    user = models.ForeignKey(User)
-    verified = models.BooleanField(default=False, db_index=True)
+    identity = models.OneToOneField(Identity, verbose_name=_('identity'))
+    user = models.ForeignKey(User, verbose_name=_('user'))
+    verified = models.BooleanField(_('active'), default=False, db_index=True)
 
     objects = UserMapManager()
 
@@ -85,3 +87,5 @@ class UserMap(models.Model):
 
     class Meta:
         ordering = ['user']
+        verbose_name = _('user map')
+        verbose_name_plural = _('user maps')
