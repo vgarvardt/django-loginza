@@ -110,14 +110,10 @@ def icons_template(kwargs, caption):
 
         imgs = []
         for provider in providers_set:
-            # TODO: remove this workaround after Loginza will fix issue with disappeared icons
-            # see http://feedback.loginza.ru/problem/details/id/2648
-
-            # commenting this workaroud as now we have way to override missed icons urls
-            # if provider in ('verisign', 'aol'): continue
-
-            if provider in settings.ICONS_IMG_URLS: img_url = settings.ICONS_IMG_URLS[provider]
-            else: img_url = 'http://loginza.ru/img/providers/%s.png' % provider
+            if provider in settings.ICONS_IMG_URLS: 
+                img_url = settings.ICONS_IMG_URLS[provider]
+            else: 
+                img_url = 'http://loginza.ru/img/widget/%s_ico.gif' % provider
 
             imgs.append('<img src="%(img_url)s" alt="%(title)s" title="%(title)s">' % {
                 'img_url': img_url,
