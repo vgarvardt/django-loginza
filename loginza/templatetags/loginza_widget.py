@@ -28,7 +28,8 @@ allowed_providers_def = {
     'verisign': u'Verisign',
     'aol': u'AOL',
     'steam': u'Steam',
-    'openid': u'OpenID'
+    'openid': u'OpenID',
+    'livejournal': u'LiveJournal',
 }
 
 allowed_providers = {}
