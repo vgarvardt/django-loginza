@@ -6,29 +6,30 @@ from django.core.urlresolvers import reverse
 from django.template import Library, Node, TemplateSyntaxError
 from django.template.defaulttags import kwarg_re
 from django.utils.encoding import smart_str
+from django.utils.translation import ugettext_lazy as _
 
 from loginza.conf import settings
 
 register = Library()
 
 allowed_providers_def = {
-    'google': u'Google Accounts',
-    'yandex': u'Yandex',
-    'mailruapi': u'Mail.ru API',
-    'mailru': u'Mail.ru',
-    'vkontakte': u'Вконтакте',
-    'facebook': u'Facebook',
-    'twitter': u'Twitter',
-    'loginza': u'Loginza',
-    'myopenid': u'MyOpenID',
-    'webmoney': u'WebMoney',
-    'rambler': u'Rambler',
-    'flickr': u'Flickr',
-    'lastfm': u'Last.fm',
-    'verisign': u'Verisign',
-    'aol': u'AOL',
-    'steam': u'Steam',
-    'openid': u'OpenID'
+    'google': _(u'Google Accounts'),
+    'yandex': _(u'Yandex'),
+    'mailruapi': _(u'Mail.ru API'),
+    'mailru': _(u'Mail.ru'),
+    'vkontakte': _(u'Vkontakte'),
+    'facebook': _(u'Facebook'),
+    'twitter': _(u'Twitter'),
+    'loginza': _(u'Loginza'),
+    'myopenid': _(u'MyOpenID'),
+    'webmoney': _(u'WebMoney'),
+    'rambler': _(u'Rambler'),
+    'flickr': _(u'Flickr'),
+    'lastfm': _(u'Last.fm'),
+    'verisign': _(u'Verisign'),
+    'aol': _(u'AOL'),
+    'openid': _(u'OpenID'),
+    'livejournal': _(u'LiveJournal'),
 }
 
 allowed_providers = {}
@@ -110,14 +111,10 @@ def icons_template(kwargs, caption):
 
         imgs = []
         for provider in providers_set:
-            # TODO: remove this workaround after Loginza will fix issue with disappeared icons
-            # see http://feedback.loginza.ru/problem/details/id/2648
-
-            # commenting this workaroud as now we have way to override missed icons urls
-            # if provider in ('verisign', 'aol'): continue
-
-            if provider in settings.ICONS_IMG_URLS: img_url = settings.ICONS_IMG_URLS[provider]
-            else: img_url = 'http://loginza.ru/img/providers/%s.png' % provider
+            if provider in settings.ICONS_IMG_URLS: 
+                img_url = settings.ICONS_IMG_URLS[provider]
+            else: 
+                img_url = 'http://loginza.ru/img/widget/%s_ico.gif' % provider
 
             imgs.append('<img src="%(img_url)s" alt="%(title)s" title="%(title)s">' % {
                 'img_url': img_url,

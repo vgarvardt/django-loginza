@@ -9,15 +9,15 @@ Django-приложение, обеспечивающее работу с сер
 
 Установка производится с помощью ``pip``::
 
- $ pip install -e git+git://github.com/vgarvardt/django-loginza.git@0.3#egg=django-loginza
+ $ pip install -e git+git://github.com/vgarvardt/django-loginza.git@0.3.1#egg=django-loginza
 
-Или добавлением следующей строчки в ``project/requirements.txt``::
+Или добавлением следующей строчки в ``project_name/requirements.txt``::
 
- -e git+git://github.com/vgarvardt/django-loginza.git@0.3#egg=django-loginza
+ -e git+git://github.com/vgarvardt/django-loginza.git@0.3.1#egg=django-loginza
 
 А затем установкой через ``pip``::
 
- $ pip install -r project/requirements.txt
+ $ pip install -r project_name/requirements.txt
 
 Последняя актуальная версия доступна в `репозитории GitHub`__.
 
@@ -280,8 +280,7 @@ Django-приложение, обеспечивающее работу с сер
 - ``LOGINZA_BUTTON_IMG_URL`` - ссылка на изображение, используемое для виджета Кнопка. По умолчанию
   изображение загружается с сайта loginza.ru.
 - ``LOGINZA_ICONS_IMG_URLS`` - словарь со ссылками на иконки провайдеров авторизации, используемых для
-  виджета Иконки. По умолчанию изображения загружаются с сайта loginza.ru. Для двух провайдеров
-  (verisign и aol) иконки отсутствуют (см `баг в Copiny`__)
+  виджета Иконки. По умолчанию изображения загружаются с сайта loginza.ru.
 
 Дополнительные возможности
 ==========================
@@ -301,4 +300,3 @@ Django-приложение, обеспечивающее работу с сер
 __ https://github.com/vgarvardt/django-loginza
 __ http://loginza.ru/signin-integration
 __ http://loginza.ru/api-overview
-__ http://feedback.loginza.ru/problem/details/id/2648
