@@ -1,9 +1,8 @@
 from setuptools import setup, find_packages
 
-
 setup(
-    name = 'loginza',
-    version = '0.3.1',
+    name = 'django-loginza',
+    version = '0.3.3',
     author = 'Vladimir Garvardt',
     author_email = 'vgarvardt@gmail.com',
     description = 'Django application for Loginza service',
