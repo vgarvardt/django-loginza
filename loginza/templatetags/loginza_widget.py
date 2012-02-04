@@ -29,7 +29,7 @@ allowed_providers_def = {
     'verisign': _(u'Verisign'),
     'aol': _(u'AOL'),
     'openid': _(u'OpenID'),
-    'livejournal': _(u'LiveJournal'),
+    'livejournal': _(u'LiveJournal')
 }
 
 allowed_providers = {}
@@ -80,11 +80,13 @@ def providers(kwargs):
 def iframe_template(kwargs, caption=''):
     return """<script src="http://loginza.ru/js/widget.js" type="text/javascript"></script>
 <iframe src="http://loginza.ru/api/widget?overlay=loginza&%(providers)slang=%(lang)s&token_url=%(return-url)s"
-style="width:359px;height:300px;" scrolling="no" frameborder="no"></iframe>""" % {
+style="width:%(width)s;height:%(height)s;" scrolling="no" frameborder="no"></iframe>""" % {
         'return-url': return_url(),
         'lang': kwargs['lang'],
         'providers': providers(kwargs),
-        'caption': caption
+        'caption': caption,
+        'width': kwargs.get('width', settings.IFRAME_WIDTH),
+        'height': kwargs.get('height', settings.IFRAME_HEIGHT)
     }
 
 
@@ -111,9 +113,9 @@ def icons_template(kwargs, caption):
 
         imgs = []
         for provider in providers_set:
-            if provider in settings.ICONS_IMG_URLS: 
+            if provider in settings.ICONS_IMG_URLS:
                 img_url = settings.ICONS_IMG_URLS[provider]
-            else: 
+            else:
                 img_url = 'http://loginza.ru/img/widget/%s_ico.gif' % provider
 
             imgs.append('<img src="%(img_url)s" alt="%(title)s" title="%(title)s">' % {
@@ -155,8 +157,7 @@ class LoginzaWidgetNode(Node):
         self.asvar = asvar
 
     def render(self, context):
-        kwargs = dict([(smart_str(k, 'ascii'), v.resolve(context))
-                       for k, v in self.kwargs.items()])
+        kwargs = dict([(smart_str(k, 'ascii'), v.resolve(context)) for k, v in self.kwargs.items()])
         if 'lang' not in kwargs:
             kwargs['lang'] = settings.DEFAULT_LANGUAGE
 
@@ -181,8 +182,7 @@ def _loginza_widget(parser, token, html_template):
     bits = token.split_contents()
     if len(bits) < 2:
         if html_template != iframe_template:
-            raise TemplateSyntaxError("'%s' takes at least one argument"
-                                      " (caption)" % bits[0])
+            raise TemplateSyntaxError("'%s' takes at least one argument (caption)" % bits[0])
         else:
             caption = ''
     else:

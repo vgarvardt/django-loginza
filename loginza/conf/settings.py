@@ -33,3 +33,7 @@ BUTTON_IMG_URL = getattr(settings, 'LOGINZA_BUTTON_IMG_URL', 'http://loginza.ru/
 
 # Icons widget images urls.
 ICONS_IMG_URLS = getattr(settings, 'LOGINZA_ICONS_IMG_URLS', {})
+
+# iframe widget size
+IFRAME_WIDTH = getattr(settings, 'LOGINZA_IFRAME_WIDTH', '359px')
+IFRAME_HEIGHT = getattr(settings, 'LOGINZA_IFRAME_HEIGHT', '300px')
