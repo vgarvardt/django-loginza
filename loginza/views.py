@@ -1,4 +1,5 @@
 # -*- coding:utf-8 -*-
+from urllib import urlencode
 from urllib2 import urlopen
 
 from django import http
@@ -11,6 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from loginza import models, signals
 from loginza.authentication import LoginzaError
 from loginza.templatetags.loginza_widget import _return_path
+from loginza.conf import settings
 
 @require_POST
 @csrf_exempt
@@ -19,7 +21,11 @@ def return_callback(request):
     if token is None:
         return http.HttpResponseBadRequest()
 
-    f = urlopen('http://loginza.ru/api/authinfo?token=%s' % token)
+    params = {'token': token}
+    if settings.WIDGET_ID is not None and settings.API_SIGNATURE is not None:
+        params.update(id=settings.WIDGET_ID, sig=settings.API_SIGNATURE)
+
+    f = urlopen('http://loginza.ru/api/authinfo?%s' % urlencode(params))
     result = f.read()
     f.close()
 

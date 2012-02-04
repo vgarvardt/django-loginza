@@ -288,6 +288,8 @@ Django-приложение, обеспечивающее работу с сер
   по умолчанию 359px).
 - ``LOGINZA_IFRAME_HEIGHT`` - высота встраевомого виджета авторизации (строка, использвется как есть,
   по умолчанию 300px).
+- ``LOGINZA_WIDGET_ID`` - ID виджета Loginza (см. в секции `Мой виджет Loginza`__).
+- ``LOGINZA_API_SIGNATURE`` - Секретный ключ виджета Loginza.
 
 Дополнительные возможности
 ==========================
@@ -307,3 +309,4 @@ Django-приложение, обеспечивающее работу с сер
 __ https://github.com/vgarvardt/django-loginza
 __ http://loginza.ru/signin-integration
 __ http://loginza.ru/api-overview
+__ http://loginza.ru/my-widgets

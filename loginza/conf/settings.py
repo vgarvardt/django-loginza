@@ -37,3 +37,7 @@ ICONS_IMG_URLS = getattr(settings, 'LOGINZA_ICONS_IMG_URLS', {})
 # iframe widget size
 IFRAME_WIDTH = getattr(settings, 'LOGINZA_IFRAME_WIDTH', '359px')
 IFRAME_HEIGHT = getattr(settings, 'LOGINZA_IFRAME_HEIGHT', '300px')
+
+# Widget settings
+WIDGET_ID = getattr(settings, 'LOGINZA_WIDGET_ID', None)
+API_SIGNATURE = getattr(settings, 'LOGINZA_API_SIGNATURE', None)
