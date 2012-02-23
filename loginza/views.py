@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 from urllib import urlencode
 from urllib2 import urlopen
+from hashlib import md5
 
 from django import http
 from django.utils import simplejson as json
@@ -23,7 +24,8 @@ def return_callback(request):
 
     params = {'token': token}
     if settings.WIDGET_ID is not None and settings.API_SIGNATURE is not None:
-        params.update(id=settings.WIDGET_ID, sig=settings.API_SIGNATURE)
+        sig = md5(token + settings.API_SIGNATURE).hexdigest()
+        params.update(id=settings.WIDGET_ID, sig=sig)
 
     f = urlopen('http://loginza.ru/api/authinfo?%s' % urlencode(params))
     result = f.read()
