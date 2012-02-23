@@ -180,13 +180,10 @@ def _loginza_widget(parser, token, html_template):
         return s
 
     bits = token.split_contents()
-    if (len(bits) < 2) and (html_template != iframe_template):
+    if len(bits) < 2 and html_template != iframe_template:
         raise TemplateSyntaxError("'%s' takes at least one argument (caption)" % bits[0])
-    
-    if html_template == iframe_template:
-        caption = ''
-    else:
-        caption = unquote(bits[1])
+
+    caption = '' if html_template == iframe_template else unquote(bits[1])
 
     kwargs = {}
     asvar = None
