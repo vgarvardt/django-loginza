@@ -20,6 +20,7 @@ allowed_providers_def = {
     'vkontakte': _(u'Vkontakte'),
     'facebook': _(u'Facebook'),
     'twitter': _(u'Twitter'),
+    'odnoklassniki': _(u'Odnoklassniki'),
     'loginza': _(u'Loginza'),
     'myopenid': _(u'MyOpenID'),
     'webmoney': _(u'WebMoney'),
