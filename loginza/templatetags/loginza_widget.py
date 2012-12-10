@@ -78,29 +78,35 @@ def providers(kwargs):
     return ('&'.join(params) + '&') if len(params) > 0 else ''
 
 
+def id_attr(kwargs):
+    return 'id="%s"' % kwargs.get('id') if kwargs.get('id') else ''
+
+
 def iframe_template(kwargs, caption=''):
     return """<script src="http://loginza.ru/js/widget.js" type="text/javascript"></script>
 <iframe src="http://loginza.ru/api/widget?overlay=loginza&%(providers)slang=%(lang)s&token_url=%(return-url)s"
-style="width:%(width)s;height:%(height)s;" scrolling="no" frameborder="no"></iframe>""" % {
+style="width:%(width)s;height:%(height)s;" scrolling="no" frameborder="no" %(id)s></iframe>""" % {
         'return-url': return_url(),
         'lang': kwargs['lang'],
         'providers': providers(kwargs),
         'caption': caption,
         'width': kwargs.get('width', settings.IFRAME_WIDTH),
-        'height': kwargs.get('height', settings.IFRAME_HEIGHT)
+        'height': kwargs.get('height', settings.IFRAME_HEIGHT),
+        'id': id_attr(kwargs)
     }
 
 
 def button_template(kwargs, caption):
     return """<script src="http://loginza.ru/js/widget.js" type="text/javascript"></script>
-<a href="http://loginza.ru/api/widget?%(providers)slang=%(lang)s&token_url=%(return-url)s" rel="nofollow" class="loginza">
+<a href="http://loginza.ru/api/widget?%(providers)slang=%(lang)s&token_url=%(return-url)s" rel="nofollow" class="loginza" %(id)s>
     <img src="%(button-img)s" alt="%(caption)s" title="%(caption)s"/>
 </a>""" % {
         'button-img': settings.BUTTON_IMG_URL,
         'return-url': return_url(),
         'caption': caption,
         'lang': kwargs['lang'],
-        'providers': providers(kwargs)
+        'providers': providers(kwargs),
+        'id': id_attr(kwargs)
     }
 
 
@@ -127,26 +133,28 @@ def icons_template(kwargs, caption):
 
     return """<script src="http://loginza.ru/js/widget.js" type="text/javascript"></script>
 %(caption)s
-<a href="https://loginza.ru/api/widget?%(providers)slang=%(lang)s&token_url=%(return-url)s" rel="nofollow" class="loginza">
+<a href="https://loginza.ru/api/widget?%(providers)slang=%(lang)s&token_url=%(return-url)s" rel="nofollow" class="loginza" %(id)s>
     %(icons)s
 </a>""" % {
         'return-url': return_url(),
         'caption': caption,
         'lang': kwargs['lang'],
         'providers': providers(kwargs),
-        'icons': icons()
+        'icons': icons(),
+        'id': id_attr(kwargs)
     }
 
 
 def string_template(kwargs, caption):
     return """<script src="http://loginza.ru/js/widget.js" type="text/javascript"></script>
-<a href="http://loginza.ru/api/widget?%(providers)slang=%(lang)s&token_url=%(return-url)s" rel="nofollow" class="loginza">
+<a href="http://loginza.ru/api/widget?%(providers)slang=%(lang)s&token_url=%(return-url)s" rel="nofollow" class="loginza" %(id)s>
     %(caption)s
 </a>""" % {
         'return-url': return_url(),
         'caption': caption,
         'lang': kwargs['lang'],
-        'providers': providers(kwargs)
+        'providers': providers(kwargs),
+        'id': id_attr(kwargs)
     }
 
 
