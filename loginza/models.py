@@ -5,8 +5,13 @@ except ImportError: # django < 1.5
     from django.contrib.auth.models import User
 else:
     User = get_user_model()
+
+try:
+    import json
+except ImportError:
+    from django.utils import simplejson as json
+
 from django.db import models
-from django.utils import simplejson as json
 from django.utils.translation import ugettext_lazy as _
 
 from loginza import signals

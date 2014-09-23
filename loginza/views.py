@@ -3,8 +3,12 @@ from urllib import urlencode
 from urllib2 import urlopen
 from hashlib import md5
 
+try:
+    import json
+except ImportError:
+    from django.utils import simplejson as json
+
 from django import http
-from django.utils import simplejson as json
 from django.contrib import auth
 from django.shortcuts import redirect
 from django.views.decorators.http import require_POST
