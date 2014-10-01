@@ -1,16 +1,11 @@
 # -*- coding: utf-8 -*-
 try:
-    from django.contrib.auth import get_user_model
-except ImportError: # django < 1.5
-    from django.contrib.auth.models import User
-else:
-    User = get_user_model()
-
-try:
     import json
 except ImportError:
     from django.utils import simplejson as json
 
+from django.conf import settings as django_settings
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -57,6 +52,7 @@ class UserMapManager(models.Manager):
                     username = loginza_nickname
 
                 # check duplicate user name
+                User = get_user_model()
                 while True:
                     try:
                         existing_user = User.objects.get(username=username)
@@ -64,10 +60,8 @@ class UserMapManager(models.Manager):
                     except User.DoesNotExist:
                         break
 
-                user = User.objects.create_user(
-                    username,
-                    email
-                )
+                user = User.objects.create_user(username, email)
+                
             user_map = UserMap.objects.create(identity=identity, user=user)
             signals.created.send(request, user_map=user_map)
         return user_map
@@ -91,7 +85,7 @@ class Identity(models.Model):
 
 class UserMap(models.Model):
     identity = models.OneToOneField(Identity, verbose_name=_('identity'))
-    user = models.ForeignKey(User, verbose_name=_('user'))
+    user = models.ForeignKey(django_settings.AUTH_USER_MODEL, verbose_name=_('user'))
     verified = models.BooleanField(_('active'), default=False, db_index=True)
 
     objects = UserMapManager()
