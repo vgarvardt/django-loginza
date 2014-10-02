@@ -1,5 +1,9 @@
 # -*- coding:utf-8 -*-
-import urllib
+try:
+    from urllib import quote
+except ImportError:
+    # py3k
+    from urllib.parse import quote
 
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
@@ -48,7 +52,7 @@ def _absolute_url(url):
 
 
 def return_url():
-    return urllib.quote(_absolute_url(reverse('loginza.views.return_callback')), '')
+    return quote(_absolute_url(reverse('loginza.views.return_callback')), '')
 
 
 def _providers_set(kwargs):
